@@ -40,63 +40,57 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-secondary">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-primary">校园智能排班系统</h2>
-          <p className="mt-2 text-gray-600">登录您的账号</p>
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-header">
+          <h2 className="auth-title">校园智能排班系统</h2>
+          <p className="auth-subtitle">登录您的账号</p>
         </div>
 
         {error && (
-          <div className="p-3 text-red-600 bg-red-100 rounded-md">
+          <div className="alert error">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-700">
-              邮箱
-            </label>
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div className="form-group">
+            <label className="form-label">邮箱</label>
             <input
               type="email"
-              id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+              className="form-input"
               placeholder="请输入邮箱"
             />
           </div>
 
-          <div>
-            <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-700">
-              密码
-            </label>
+          <div className="form-group">
+            <label className="form-label">密码</label>
             <input
               type="password"
-              id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+              className="form-input"
               placeholder="请输入密码"
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
+          <div className="form-options">
+            <div className="form-option">
               <input
                 id="remember-me"
                 type="checkbox"
-                className="w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded"
+                className="form-checkbox"
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+              <label htmlFor="remember-me" className="form-option-label">
                 记住我
               </label>
             </div>
-            <div className="text-sm">
-              <a href="#" className="font-medium text-primary hover:text-primary/80">
+            <div className="form-link">
+              <a href="#" className="link">
                 忘记密码？
               </a>
             </div>
@@ -105,15 +99,15 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full px-4 py-2 font-medium text-white bg-primary rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-primary btn-full"
           >
             {loading ? '登录中...' : '登录'}
           </button>
 
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
+          <div className="auth-footer">
+            <p className="auth-footer-text">
               还没有账号？
-              <Link to="/register" className="font-medium text-primary hover:text-primary/80 ml-1">
+              <Link to="/register" className="link">
                 立即注册
               </Link>
             </p>

@@ -23,7 +23,6 @@ const Dashboard = () => {
 
   const fetchData = async () => {
     try {
-      // 模拟数据，实际项目中需要从API获取
       setDepartmentStats([
         { id: 1, name: '部门 1', on_duty_count: 15, attendance_rate: 92.5, week_on_duty: 8, month_on_duty: 32 },
         { id: 2, name: '部门 2', on_duty_count: 8, attendance_rate: 87.5, week_on_duty: 4, month_on_duty: 16 },
@@ -112,113 +111,85 @@ const Dashboard = () => {
   }, [dragging]);
 
   return (
-    <div className="min-h-screen bg-secondary">
-      {/* 顶部导航栏 */}
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold text-primary">校园智能排班系统</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-700">欢迎, {user?.name || '用户'}</span>
-              <Link to="/login" className="px-3 py-1 text-sm text-white bg-primary rounded hover:bg-primary/90">
-                退出登录
-              </Link>
-            </div>
+    <div className="app-container">
+      <nav className="top-nav">
+        <div className="nav-content">
+          <div className="nav-left">
+            <h1 className="app-title">校园智能排班系统</h1>
+          </div>
+          <div className="nav-right">
+            <span className="user-greeting">欢迎, {user?.name || '用户'}</span>
+            <Link to="/login" className="btn-secondary">
+              退出登录
+            </Link>
           </div>
         </div>
       </nav>
 
-      {/* 侧边导航栏 */}
-      <div className="flex">
-        <div className="w-64 bg-white shadow-sm">
-          <div className="p-4">
-            <h2 className="text-lg font-semibold text-gray-700 mb-4">导航</h2>
-            <ul className="space-y-2">
+      <div className="main-layout">
+        <aside className="sidebar">
+          <div className="sidebar-content">
+            <h2 className="sidebar-title">导航</h2>
+            <ul className="nav-list">
               <li>
-                <Link
-                  to="/dashboard"
-                  className="flex items-center px-3 py-2 text-primary bg-blue-50 rounded-md"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <Link to="/dashboard" className="nav-link active">
+                  <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                   </svg>
                   统计看板
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/members"
-                  className="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <Link to="/members" className="nav-link">
+                  <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                   成员管理
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/scheduling"
-                  className="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <Link to="/scheduling" className="nav-link">
+                  <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   排班管理
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/notifications"
-                  className="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <Link to="/notifications" className="nav-link">
+                  <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                   </svg>
                   通知管理
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/statistics"
-                  className="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <Link to="/statistics" className="nav-link">
+                  <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
                   数据统计
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/volunteer-hours"
-                  className="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <Link to="/volunteer-hours" className="nav-link">
+                  <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   志愿时长
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/leave-requests"
-                  className="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <Link to="/leave-requests" className="nav-link">
+                  <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   请假申请
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/attendance"
-                  className="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <Link to="/attendance" className="nav-link">
+                  <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   签到打卡
@@ -226,32 +197,28 @@ const Dashboard = () => {
               </li>
             </ul>
           </div>
-        </div>
+        </aside>
 
-        {/* 主内容区 */}
-        <div className="flex-1 p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">值班数据统计看板</h2>
-            <div className="flex space-x-4">
-              <div className="flex space-x-2">
+        <main className="main-content">
+          <div className="content-header">
+            <h2 className="page-title">值班数据统计看板</h2>
+            <div className="header-actions">
+              <div className="time-range-buttons">
                 <button 
-                  className={`px-4 py-2 rounded-md ${timeRange === 'week' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700'}`}
+                  className={`time-btn ${timeRange === 'week' ? 'active' : ''}`}
                   onClick={() => setTimeRange('week')}
                 >
                   周
                 </button>
                 <button 
-                  className={`px-4 py-2 rounded-md ${timeRange === 'month' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700'}`}
+                  className={`time-btn ${timeRange === 'month' ? 'active' : ''}`}
                   onClick={() => setTimeRange('month')}
                 >
                   月
                 </button>
               </div>
-              <button
-                onClick={handleExportExcel}
-                className="px-4 py-2 text-white bg-primary rounded-md hover:bg-primary/90 flex items-center"
-              >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <button onClick={handleExportExcel} className="btn-primary">
+                <svg className="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
                 导出Excel
@@ -259,36 +226,31 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* 拖拽容器 */}
-          <div 
-            ref={containerRef}
-            className="relative min-h-[700px] border border-dashed border-gray-300 rounded-lg bg-gray-50"
-          >
-            {/* 部门数据卡片 */}
+          <div ref={containerRef} className="drag-container">
             <div 
-              className="absolute w-[350px] bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden"
-              style={{ left: `${positions.department.x}px`, top: `${positions.department.y}px` }}
+              className="dashboard-card"
+              style={{ left: `${positions.department.x}px`, top: `${positions.department.y}px`, width: '350px' }}
             >
               <div 
-                className="bg-primary text-white p-4 cursor-move flex justify-between items-center"
+                className="card-header draggable"
                 onMouseDown={(e) => handleMouseDown(e, 'department')}
               >
-                <h3 className="font-semibold">部门数据统计</h3>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h3 className="card-title">部门数据统计</h3>
+                <svg className="card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14m-7-7h14" />
                 </svg>
               </div>
-              <div className="p-4">
-                <div className="space-y-4">
+              <div className="card-body">
+                <div className="stats-list">
                   {departmentStats.map((dept) => (
-                    <div key={dept.id} className="p-3 border rounded-lg">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="font-medium">{dept.name}</h4>
-                        <span className={`text-sm font-semibold ${dept.attendance_rate >= 90 ? 'text-success' : dept.attendance_rate >= 80 ? 'text-warning' : 'text-danger'}`}>
+                    <div key={dept.id} className="stat-item">
+                      <div className="stat-header">
+                        <h4 className="stat-name">{dept.name}</h4>
+                        <span className={`stat-rate ${dept.attendance_rate >= 90 ? 'high' : dept.attendance_rate >= 80 ? 'medium' : 'low'}`}>
                           {dept.attendance_rate}%
                         </span>
                       </div>
-                      <div className="flex justify-between text-sm text-gray-600">
+                      <div className="stat-details">
                         <span>{timeRange === 'week' ? '本周值班' : '本月值班'}: {timeRange === 'week' ? dept.week_on_duty : dept.month_on_duty}次</span>
                         <span>出勤率: {dept.attendance_rate}%</span>
                       </div>
@@ -298,35 +260,34 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* 成员数据卡片 */}
             <div 
-              className="absolute w-[350px] bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden"
-              style={{ left: `${positions.member.x}px`, top: `${positions.member.y}px` }}
+              className="dashboard-card"
+              style={{ left: `${positions.member.x}px`, top: `${positions.member.y}px`, width: '350px' }}
             >
               <div 
-                className="bg-info text-white p-4 cursor-move flex justify-between items-center"
+                className="card-header draggable info"
                 onMouseDown={(e) => handleMouseDown(e, 'member')}
               >
-                <h3 className="font-semibold">成员数据统计</h3>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h3 className="card-title">成员数据统计</h3>
+                <svg className="card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14m-7-7h14" />
                 </svg>
               </div>
-              <div className="p-4">
-                <div className="space-y-3">
+              <div className="card-body">
+                <div className="stats-list">
                   {memberStats.map((member) => (
-                    <div key={member.id} className="p-3 border rounded-lg">
-                      <div className="flex justify-between items-center mb-1">
-                        <h4 className="font-medium">{member.name}</h4>
-                        <span className="text-sm text-gray-600">部门 {member.department_id}</span>
+                    <div key={member.id} className="stat-item">
+                      <div className="stat-header">
+                        <h4 className="stat-name">{member.name}</h4>
+                        <span className="stat-dept">部门 {member.department_id}</span>
                       </div>
-                      <div className="flex justify-between text-sm text-gray-600">
+                      <div className="stat-details">
                         <span>值班: {member.on_duty_count}次</span>
                         <span>出勤: {member.attendance_count}次</span>
                       </div>
-                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                      <div className="stat-details">
                         <span>志愿时长: {member.volunteer_hours}小时</span>
-                        <span className={`${member.attendance_rate >= 90 ? 'text-success' : member.attendance_rate >= 80 ? 'text-warning' : 'text-danger'}`}>
+                        <span className={`stat-rate ${member.attendance_rate >= 90 ? 'high' : member.attendance_rate >= 80 ? 'medium' : 'low'}`}>
                           出勤率: {member.attendance_rate}%
                         </span>
                       </div>
@@ -336,40 +297,39 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* 任务数据卡片 */}
             <div 
-              className="absolute w-[720px] bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden"
-              style={{ left: `${positions.task.x}px`, top: `${positions.task.y}px` }}
+              className="dashboard-card"
+              style={{ left: `${positions.task.x}px`, top: `${positions.task.y}px`, width: '720px' }}
             >
               <div 
-                className="bg-success text-white p-4 cursor-move flex justify-between items-center"
+                className="card-header draggable success"
                 onMouseDown={(e) => handleMouseDown(e, 'task')}
               >
-                <h3 className="font-semibold">任务数据统计</h3>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h3 className="card-title">任务数据统计</h3>
+                <svg className="card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14m-7-7h14" />
                 </svg>
               </div>
-              <div className="p-4">
-                <div className="overflow-x-auto">
-                  <table className="min-w-full">
+              <div className="card-body">
+                <div className="table-wrapper">
+                  <table className="data-table">
                     <thead>
-                      <tr className="border-b">
-                        <th className="text-left py-2 px-3">任务名称</th>
-                        <th className="text-left py-2 px-3">总次数</th>
-                        <th className="text-left py-2 px-3">完成次数</th>
-                        <th className="text-left py-2 px-3">未出勤次数</th>
-                        <th className="text-left py-2 px-3">未出勤人员</th>
+                      <tr>
+                        <th>任务名称</th>
+                        <th>总次数</th>
+                        <th>完成次数</th>
+                        <th>未出勤次数</th>
+                        <th>未出勤人员</th>
                       </tr>
                     </thead>
                     <tbody>
                       {taskStats.map((task) => (
-                        <tr key={task.id} className="border-b">
-                          <td className="py-2 px-3 font-medium">{task.name}</td>
-                          <td className="py-2 px-3">{task.total_count}</td>
-                          <td className="py-2 px-3">{task.completed_count}</td>
-                          <td className="py-2 px-3 text-danger">{task.absent_count}</td>
-                          <td className="py-2 px-3">
+                        <tr key={task.id}>
+                          <td className="font-medium">{task.name}</td>
+                          <td>{task.total_count}</td>
+                          <td>{task.completed_count}</td>
+                          <td className="text-danger">{task.absent_count}</td>
+                          <td>
                             {task.absent_members.length > 0 ? (
                               task.absent_members.join(', ')
                             ) : (
@@ -385,11 +345,10 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* 说明文字 */}
-          <div className="mt-6 text-center text-sm text-gray-500">
+          <div className="hint-text">
             <p>提示：点击卡片标题栏可拖拽调整位置</p>
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );

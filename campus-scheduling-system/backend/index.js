@@ -22,6 +22,8 @@ const taskRoutes = require('./routes/tasks');
 const scheduleRoutes = require('./routes/schedules');
 const notificationRoutes = require('./routes/notifications');
 const statisticsRoutes = require('./routes/statistics');
+const leaveRequestRoutes = require('./routes/leave-requests');
+const attendanceRoutes = require('./routes/attendance');
 
 // 使用路由
 app.use('/api/auth', authRoutes);
@@ -30,6 +32,8 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/schedules', scheduleRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/statistics', statisticsRoutes);
+app.use('/api/leave-requests', leaveRequestRoutes);
+app.use('/api/attendance', attendanceRoutes);
 
 // 启动服务器
 app.listen(PORT, () => {

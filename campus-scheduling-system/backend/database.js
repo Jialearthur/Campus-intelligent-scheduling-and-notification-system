@@ -72,6 +72,7 @@ db.run(`
     start_time TIMESTAMP NOT NULL,
     end_time TIMESTAMP NOT NULL,
     required_count INTEGER NOT NULL,
+    volunteer_hours REAL DEFAULT 0,
     created_by INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (department_id) REFERENCES departments(id),
@@ -108,6 +109,24 @@ db.run(`
   )
 `);
 
+// 创建请假申请表
+db.run(`
+  CREATE TABLE IF NOT EXISTS leave_requests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    schedule_id INTEGER,
+    member_id INTEGER,
+    reason TEXT NOT NULL,
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
+    status TEXT DEFAULT 'pending',
+    approved_by INTEGER,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (schedule_id) REFERENCES schedules(id),
+    FOREIGN KEY (member_id) REFERENCES members(id),
+    FOREIGN KEY (approved_by) REFERENCES users(id)
+  )
+`);
+
 // 创建考勤表
 db.run(`
   CREATE TABLE IF NOT EXISTS attendance (
@@ -115,6 +134,7 @@ db.run(`
     schedule_id INTEGER,
     member_id INTEGER,
     status TEXT DEFAULT 'absent',
+    check_in_time TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (schedule_id) REFERENCES schedules(id),
     FOREIGN KEY (member_id) REFERENCES members(id)

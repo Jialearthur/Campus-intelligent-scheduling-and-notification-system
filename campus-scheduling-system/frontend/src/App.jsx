@@ -6,6 +6,9 @@ import Members from './pages/Members';
 import Scheduling from './pages/Scheduling';
 import Notifications from './pages/Notifications';
 import Statistics from './pages/Statistics';
+import VolunteerHours from './pages/VolunteerHours';
+import LeaveRequests from './pages/LeaveRequests';
+import Attendance from './pages/Attendance';
 import { useAuth } from './context/AuthContext';
 
 function App() {
@@ -25,6 +28,9 @@ function App() {
         <Route path="/scheduling" element={user ? <Scheduling /> : <Navigate to="/login" />} />
         <Route path="/notifications" element={user ? <Notifications /> : <Navigate to="/login" />} />
         <Route path="/statistics" element={user ? <Statistics /> : <Navigate to="/login" />} />
+        <Route path="/volunteer-hours" element={user ? <VolunteerHours /> : <Navigate to="/login" />} />
+        <Route path="/leave-requests" element={user ? <LeaveRequests /> : <Navigate to="/login" />} />
+        <Route path="/attendance" element={user ? <Attendance /> : <Navigate to="/login" />} />
         <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
       </Routes>
     </Router>

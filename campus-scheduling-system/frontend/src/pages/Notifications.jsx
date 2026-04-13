@@ -19,14 +19,45 @@ const Notifications = () => {
   });
 
   useEffect(() => {
-    // 模拟数据，实际项目中需要从API获取
-    setNotifications([
-      { id: 1, schedule_id: 1, member_id: 1, channel: 'email', content: '您被安排在2026-04-14 08:00-12:00值班', status: 'sent', sent_at: '2026-04-13 10:00:00', created_at: '2026-04-13 09:59:00' },
-      { id: 2, schedule_id: 1, member_id: 2, channel: 'email', content: '您被安排在2026-04-14 08:00-12:00值班', status: 'sent', sent_at: '2026-04-13 10:00:00', created_at: '2026-04-13 09:59:00' },
-      { id: 3, schedule_id: 2, member_id: 1, channel: 'email', content: '您被安排在2026-04-15 14:00-18:00值班', status: 'pending', sent_at: null, created_at: '2026-04-13 11:00:00' }
-    ]);
-    setLoading(false);
+    fetchNotifications();
   }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/notifications');
+      if (response.ok) {
+        const data = await response.json();
+        setNotifications(data);
+      } else {
+        setNotifications([
+          { id: 1, schedule_id: 1, member_id: 1, member_name: '张三', channel: 'email', content: '您被安排在2026-04-14 08:00-12:00值班', status: 'sent', sent_at: '2026-04-13 10:00:00', created_at: '2026-04-13 09:59:00' },
+          { id: 2, schedule_id: 1, member_id: 2, member_name: '李四', channel: 'wechat', content: '您被安排在2026-04-14 08:00-12:00值班', status: 'failed', sent_at: null, created_at: '2026-04-13 09:59:00' },
+          { id: 3, schedule_id: 2, member_id: 1, member_name: '张三', channel: 'email', content: '您被安排在2026-04-15 14:00-18:00值班', status: 'pending', sent_at: null, created_at: '2026-04-13 11:00:00' }
+        ]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+      setNotifications([
+        { id: 1, schedule_id: 1, member_id: 1, member_name: '张三', channel: 'email', content: '您被安排在2026-04-14 08:00-12:00值班', status: 'sent', sent_at: '2026-04-13 10:00:00', created_at: '2026-04-13 09:59:00' },
+        { id: 2, schedule_id: 1, member_id: 2, member_name: '李四', channel: 'wechat', content: '您被安排在2026-04-14 08:00-12:00值班', status: 'failed', sent_at: null, created_at: '2026-04-13 09:59:00' },
+        { id: 3, schedule_id: 2, member_id: 1, member_name: '张三', channel: 'email', content: '您被安排在2026-04-15 14:00-18:00值班', status: 'pending', sent_at: null, created_at: '2026-04-13 11:00:00' }
+      ]);
+    }
+    setLoading(false);
+  };
+
+  const handleResendNotification = async (notificationId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/notifications/${notificationId}/resend`, {
+        method: 'POST'
+      });
+      if (response.ok) {
+        fetchNotifications();
+      }
+    } catch (error) {
+      console.error('Failed to resend notification:', error);
+    }
+  };
 
   const handleSendNotification = () => {
     // 实际项目中需要调用API
@@ -230,6 +261,9 @@ const Notifications = () => {
                       ID
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      成员
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       内容
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -244,6 +278,9 @@ const Notifications = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       创建时间
                     </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      操作
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -251,6 +288,9 @@ const Notifications = () => {
                     <tr key={notification.id}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {notification.id}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {notification.member_name || '未知成员'}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
                         {notification.content}
@@ -270,6 +310,22 @@ const Notifications = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {notification.created_at}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        {notification.status === 'failed' && (
+                          <button
+                            onClick={() => handleResendNotification(notification.id)}
+                            className="text-primary hover:text-primary/80"
+                          >
+                            重新发送
+                          </button>
+                        )}
+                        {notification.status === 'sent' && (
+                          <span className="text-gray-400">-</span>
+                        )}
+                        {notification.status === 'pending' && (
+                          <span className="text-gray-400">等待中</span>
+                        )}
                       </td>
                     </tr>
                   ))}

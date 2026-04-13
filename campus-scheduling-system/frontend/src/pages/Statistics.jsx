@@ -28,9 +28,25 @@ const Statistics = () => {
     setLoading(false);
   }, []);
 
-  const handleExportExcel = () => {
-    // 实际项目中需要调用API
-    window.open('http://localhost:3001/api/statistics/export', '_blank');
+  const handleExportExcel = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/statistics/export', {
+        method: 'GET',
+      });
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '值班统计数据.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }
+    } catch (error) {
+      console.error('Failed to export Excel:', error);
+    }
   };
 
   return (

@@ -39,66 +39,53 @@ router.get('/', (req, res) => {
 router.post('/', async (req, res) => {
   const { schedule_id, member_id, channels, content } = req.body;
 
-  // 开始事务
-  db.run('BEGIN TRANSACTION', (err) => {
-    if (err) {
-      return res.status(500).json({ error: 'Transaction error' });
-    }
+  const notifications = [];
+  let sentCount = 0;
 
-    const notifications = [];
-    let sentCount = 0;
-
-    channels.forEach(channel => {
-      db.run(
-        'INSERT INTO notifications (schedule_id, member_id, channel, content, status) VALUES (?, ?, ?, ?, ?)',
-        [schedule_id, member_id, channel, content, 'pending'],
-        function(err) {
-          if (err) {
-            db.run('ROLLBACK');
-            return res.status(500).json({ error: 'Failed to create notification' });
-          }
-
-          notifications.push({ id: this.lastID, schedule_id, member_id, channel, content, status: 'pending' });
-          sentCount++;
-
-          // 模拟发送通知
-          if (channel === 'email') {
-            sendEmail('user@example.com', '排班通知', content)
-              .then(() => {
-                db.run('UPDATE notifications SET status = ?, sent_at = ? WHERE id = ?', ['sent', new Date().toISOString(), this.lastID]);
-              })
-              .catch(() => {
-                db.run('UPDATE notifications SET status = ? WHERE id = ?', ['failed', this.lastID]);
-              });
-          } else if (channel === 'wechat') {
-            sendWechatNotification(member_id, content)
-              .then(() => {
-                db.run('UPDATE notifications SET status = ?, sent_at = ? WHERE id = ?', ['sent', new Date().toISOString(), this.lastID]);
-              })
-              .catch(() => {
-                db.run('UPDATE notifications SET status = ? WHERE id = ?', ['failed', this.lastID]);
-              });
-          } else if (channel === 'qywechat') {
-            sendQyWechatNotification(member_id, content)
-              .then(() => {
-                db.run('UPDATE notifications SET status = ?, sent_at = ? WHERE id = ?', ['sent', new Date().toISOString(), this.lastID]);
-              })
-              .catch(() => {
-                db.run('UPDATE notifications SET status = ? WHERE id = ?', ['failed', this.lastID]);
-              });
-          }
-
-          if (sentCount === channels.length) {
-            db.run('COMMIT', (err) => {
-              if (err) {
-                return res.status(500).json({ error: 'Commit error' });
-              }
-              res.status(201).json(notifications);
-            });
-          }
+  channels.forEach(channel => {
+    db.run(
+      'INSERT INTO notifications (schedule_id, member_id, channel, content, status) VALUES (?, ?, ?, ?, ?)',
+      [schedule_id, member_id, channel, content, 'pending'],
+      function(err) {
+        if (err) {
+          return res.status(500).json({ error: 'Failed to create notification' });
         }
-      );
-    });
+
+        notifications.push({ id: this.lastID, schedule_id, member_id, channel, content, status: 'pending' });
+        sentCount++;
+
+        // 模拟发送通知
+        if (channel === 'email') {
+          sendEmail('user@example.com', '排班通知', content)
+            .then(() => {
+              db.run('UPDATE notifications SET status = ?, sent_at = ? WHERE id = ?', ['sent', new Date().toISOString(), this.lastID]);
+            })
+            .catch(() => {
+              db.run('UPDATE notifications SET status = ? WHERE id = ?', ['failed', this.lastID]);
+            });
+        } else if (channel === 'wechat') {
+          sendWechatNotification(member_id, content)
+            .then(() => {
+              db.run('UPDATE notifications SET status = ?, sent_at = ? WHERE id = ?', ['sent', new Date().toISOString(), this.lastID]);
+            })
+            .catch(() => {
+              db.run('UPDATE notifications SET status = ? WHERE id = ?', ['failed', this.lastID]);
+            });
+        } else if (channel === 'qywechat') {
+          sendQyWechatNotification(member_id, content)
+            .then(() => {
+              db.run('UPDATE notifications SET status = ?, sent_at = ? WHERE id = ?', ['sent', new Date().toISOString(), this.lastID]);
+            })
+            .catch(() => {
+              db.run('UPDATE notifications SET status = ? WHERE id = ?', ['failed', this.lastID]);
+            });
+        }
+
+        if (sentCount === channels.length) {
+          res.status(201).json(notifications);
+        }
+      }
+    );
   });
 });
 

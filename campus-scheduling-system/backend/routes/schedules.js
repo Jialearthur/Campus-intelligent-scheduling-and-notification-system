@@ -13,62 +13,316 @@ router.get('/', (req, res) => {
   });
 });
 
+// 检查成员是否有时间冲突
+const checkTimeConflict = (member_id, task_start_time, task_end_time, exclude_schedule_id = null) => {
+  return new Promise((resolve, reject) => {
+    const query = exclude_schedule_id 
+      ? 'SELECT COUNT(*) as count FROM schedules s JOIN tasks t ON s.task_id = t.id WHERE s.member_id = ? AND s.id != ? AND ((t.start_time <= ? AND t.end_time >= ?) OR (t.start_time <= ? AND t.end_time >= ?))'
+      : 'SELECT COUNT(*) as count FROM schedules s JOIN tasks t ON s.task_id = t.id WHERE s.member_id = ? AND ((t.start_time <= ? AND t.end_time >= ?) OR (t.start_time <= ? AND t.end_time >= ?))';
+    const params = exclude_schedule_id 
+      ? [member_id, exclude_schedule_id, task_end_time, task_start_time, task_end_time, task_start_time]
+      : [member_id, task_end_time, task_start_time, task_end_time, task_start_time];
+    
+    db.get(query, params, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result.count > 0);
+      }
+    });
+  });
+};
+
+// 检查成员是否有空闲时间
+const checkAvailability = (member_id, day_of_week, start_time, end_time) => {
+  return new Promise((resolve, reject) => {
+    db.get(
+      'SELECT COUNT(*) as count FROM availability WHERE member_id = ? AND day_of_week = ? AND start_time <= ? AND end_time >= ?',
+      [member_id, day_of_week, end_time, start_time],
+      (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result.count > 0);
+        }
+      }
+    );
+  });
+};
+
+// 获取成员值班次数
+const getMemberDutyCount = (member_id, start_date, end_date) => {
+  return new Promise((resolve, reject) => {
+    db.get(
+      'SELECT COUNT(*) as count FROM schedules s JOIN tasks t ON s.task_id = t.id WHERE s.member_id = ? AND t.start_time >= ? AND t.start_time <= ?',
+      [member_id, start_date, end_date],
+      (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result.count);
+        }
+      }
+    );
+  });
+};
+
 // 生成排班
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const { task_id } = req.body;
 
-  // 获取任务信息
-  db.get('SELECT * FROM tasks WHERE id = ?', [task_id], (err, task) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
+  try {
+    // 获取任务信息
+    const task = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM tasks WHERE id = ?', [task_id], (err, task) => {
+        if (err) reject(err);
+        else resolve(task);
+      });
+    });
+
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });
     }
 
-    // 简化处理：直接为任务分配第一个可用成员
-    db.get('SELECT * FROM members WHERE department_id = ? LIMIT 1', [task.department_id], (err, member) => {
-      if (err) {
-        return res.status(500).json({ error: 'Database error' });
-      }
-      if (!member) {
-        return res.status(400).json({ error: 'No members found in this department' });
-      }
+    // 获取任务时间信息
+    const task_start_time = new Date(task.start_time);
+    const task_end_time = new Date(task.end_time);
+    const day_of_week = task_start_time.getDay();
+    const start_time = task_start_time.toTimeString().substring(0, 5);
+    const end_time = task_end_time.toTimeString().substring(0, 5);
 
-      // 创建排班记录
-      db.run(
-        'INSERT INTO schedules (task_id, member_id, status) VALUES (?, ?, ?)',
-        [task_id, member.id, 'assigned'],
-        function(err) {
-          if (err) {
-            return res.status(500).json({ error: 'Failed to create schedule' });
-          }
-
-          res.status(201).json([{ id: this.lastID, task_id, member_id: member.id, status: 'assigned' }]);
-        }
-      );
+    // 获取部门成员
+    const department_members = await new Promise((resolve, reject) => {
+      db.all('SELECT * FROM members WHERE department_id = ?', [task.department_id], (err, members) => {
+        if (err) reject(err);
+        else resolve(members);
+      });
     });
-  });
+
+    // 获取所有成员（用于跨部门调配）
+    const all_members = await new Promise((resolve, reject) => {
+      db.all('SELECT * FROM members', (err, members) => {
+        if (err) reject(err);
+        else resolve(members);
+      });
+    });
+
+    // 计算成员值班次数
+    const start_of_week = new Date();
+    start_of_week.setDate(start_of_week.getDate() - start_of_week.getDay());
+    const end_of_week = new Date();
+    end_of_week.setDate(end_of_week.getDate() + (6 - end_of_week.getDay()));
+    const start_date = start_of_week.toISOString().split('T')[0] + ' 00:00:00';
+    const end_date = end_of_week.toISOString().split('T')[0] + ' 23:59:59';
+
+    // 过滤并排序成员
+    const available_members = [];
+    
+    // 先处理本部门成员
+    for (const member of department_members) {
+      const has_conflict = await checkTimeConflict(member.id, task.start_time, task.end_time);
+      const has_availability = await checkAvailability(member.id, day_of_week, start_time, end_time);
+      const duty_count = await getMemberDutyCount(member.id, start_date, end_date);
+      
+      if (!has_conflict && has_availability) {
+        available_members.push({ ...member, duty_count, is_department: true });
+      }
+    }
+
+    // 如果本部门成员不足，添加其他部门成员
+    if (available_members.length < task.required_count) {
+      for (const member of all_members) {
+        // 跳过本部门成员
+        if (member.department_id === task.department_id) continue;
+        
+        const has_conflict = await checkTimeConflict(member.id, task.start_time, task.end_time);
+        const has_availability = await checkAvailability(member.id, day_of_week, start_time, end_time);
+        const duty_count = await getMemberDutyCount(member.id, start_date, end_date);
+        
+        if (!has_conflict && has_availability) {
+          available_members.push({ ...member, duty_count, is_department: false });
+        }
+      }
+    }
+
+    // 排序：核心成员优先，然后按值班次数排序
+    available_members.sort((a, b) => {
+      // 核心成员优先
+      if (a.priority === 'core' && b.priority !== 'core') return -1;
+      if (a.priority !== 'core' && b.priority === 'core') return 1;
+      // 本部门成员优先
+      if (a.is_department && !b.is_department) return -1;
+      if (!a.is_department && b.is_department) return 1;
+      // 值班次数少的优先
+      return a.duty_count - b.duty_count;
+    });
+
+    if (available_members.length === 0) {
+      return res.status(400).json({ error: 'No available members for this task' });
+    }
+
+    // 创建排班记录
+    const schedules = [];
+    for (let i = 0; i < Math.min(task.required_count, available_members.length); i++) {
+      const member = available_members[i];
+      const schedule = await new Promise((resolve, reject) => {
+        db.run(
+          'INSERT INTO schedules (task_id, member_id, status) VALUES (?, ?, ?)',
+          [task_id, member.id, 'assigned'],
+          function(err) {
+            if (err) reject(err);
+            else resolve({ id: this.lastID, task_id, member_id: member.id, status: 'assigned' });
+          }
+        );
+      });
+      schedules.push(schedule);
+    }
+
+    res.status(201).json(schedules);
+  } catch (err) {
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
 // 更新排班
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
   const { id } = req.params;
   const { member_id, status } = req.body;
 
-  db.run(
-    'UPDATE schedules SET member_id = ?, status = ? WHERE id = ?',
-    [member_id, status, id],
-    function(err) {
-      if (err) {
-        return res.status(500).json({ error: 'Failed to update schedule' });
-      }
-      if (this.changes === 0) {
-        return res.status(404).json({ error: 'Schedule not found' });
-      }
-      res.json({ id, member_id, status });
+  try {
+    // 获取排班信息
+    const schedule = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM schedules WHERE id = ?', [id], (err, schedule) => {
+        if (err) reject(err);
+        else resolve(schedule);
+      });
+    });
+
+    if (!schedule) {
+      return res.status(404).json({ error: 'Schedule not found' });
     }
-  );
+
+    // 获取任务信息
+    const task = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM tasks WHERE id = ?', [schedule.task_id], (err, task) => {
+        if (err) reject(err);
+        else resolve(task);
+      });
+    });
+
+    // 检查时间冲突
+    const has_conflict = await checkTimeConflict(member_id, task.start_time, task.end_time, id);
+    if (has_conflict) {
+      return res.status(400).json({ error: 'Member has time conflict' });
+    }
+
+    // 检查成员空闲时间
+    const task_start_time = new Date(task.start_time);
+    const day_of_week = task_start_time.getDay();
+    const start_time = task_start_time.toTimeString().substring(0, 5);
+    const end_time = new Date(task.end_time).toTimeString().substring(0, 5);
+    const has_availability = await checkAvailability(member_id, day_of_week, start_time, end_time);
+    if (!has_availability) {
+      return res.status(400).json({ error: 'Member is not available at this time' });
+    }
+
+    // 更新排班记录
+    await new Promise((resolve, reject) => {
+      db.run(
+        'UPDATE schedules SET member_id = ?, status = ? WHERE id = ?',
+        [member_id, status, id],
+        function(err) {
+          if (err) reject(err);
+          else resolve();
+        }
+      );
+    });
+
+    res.json({ id, member_id, status });
+  } catch (err) {
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// 获取可替换的空闲成员
+router.get('/:id/replacements', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // 获取排班信息
+    const schedule = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM schedules WHERE id = ?', [id], (err, schedule) => {
+        if (err) reject(err);
+        else resolve(schedule);
+      });
+    });
+
+    if (!schedule) {
+      return res.status(404).json({ error: 'Schedule not found' });
+    }
+
+    // 获取任务信息
+    const task = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM tasks WHERE id = ?', [schedule.task_id], (err, task) => {
+        if (err) reject(err);
+        else resolve(task);
+      });
+    });
+
+    // 获取任务时间信息
+    const task_start_time = new Date(task.start_time);
+    const task_end_time = new Date(task.end_time);
+    const day_of_week = task_start_time.getDay();
+    const start_time = task_start_time.toTimeString().substring(0, 5);
+    const end_time = task_end_time.toTimeString().substring(0, 5);
+
+    // 获取所有成员
+    const all_members = await new Promise((resolve, reject) => {
+      db.all('SELECT * FROM members', (err, members) => {
+        if (err) reject(err);
+        else resolve(members);
+      });
+    });
+
+    // 计算成员值班次数
+    const start_of_week = new Date();
+    start_of_week.setDate(start_of_week.getDate() - start_of_week.getDay());
+    const end_of_week = new Date();
+    end_of_week.setDate(end_of_week.getDate() + (6 - end_of_week.getDay()));
+    const start_date = start_of_week.toISOString().split('T')[0] + ' 00:00:00';
+    const end_date = end_of_week.toISOString().split('T')[0] + ' 23:59:59';
+
+    // 过滤并排序可替换成员
+    const replacement_members = [];
+    for (const member of all_members) {
+      // 跳过当前成员
+      if (member.id === schedule.member_id) continue;
+      
+      const has_conflict = await checkTimeConflict(member.id, task.start_time, task.end_time);
+      const has_availability = await checkAvailability(member.id, day_of_week, start_time, end_time);
+      const duty_count = await getMemberDutyCount(member.id, start_date, end_date);
+      
+      if (!has_conflict && has_availability) {
+        replacement_members.push({ ...member, duty_count, is_department: member.department_id === task.department_id });
+      }
+    }
+
+    // 排序：核心成员优先，然后按值班次数排序
+    replacement_members.sort((a, b) => {
+      // 核心成员优先
+      if (a.priority === 'core' && b.priority !== 'core') return -1;
+      if (a.priority !== 'core' && b.priority === 'core') return 1;
+      // 本部门成员优先
+      if (a.is_department && !b.is_department) return -1;
+      if (!a.is_department && b.is_department) return 1;
+      // 值班次数少的优先
+      return a.duty_count - b.duty_count;
+    });
+
+    res.json(replacement_members);
+  } catch (err) {
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
 module.exports = router;

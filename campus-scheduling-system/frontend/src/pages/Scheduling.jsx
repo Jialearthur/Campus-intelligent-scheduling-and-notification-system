@@ -6,10 +6,13 @@ const Scheduling = () => {
   const { user } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [schedules, setSchedules] = useState([]);
+  const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [currentTask, setCurrentTask] = useState(null);
+  const [currentSchedule, setCurrentSchedule] = useState(null);
+  const [showEditScheduleModal, setShowEditScheduleModal] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     type: '日常值班',
@@ -19,16 +22,29 @@ const Scheduling = () => {
     required_count: 2,
     department_id: 1
   });
+  const [editFormData, setEditFormData] = useState({
+    member_id: ''
+  });
+  const [replacements, setReplacements] = useState([]);
 
   useEffect(() => {
     // 模拟数据，实际项目中需要从API获取
     setTasks([
       { id: 1, title: '日常值班', type: '日常值班', description: '日常办公室值班', start_time: '2026-04-14 08:00', end_time: '2026-04-14 12:00', required_count: 2, department_id: 1, created_by: 1 },
-      { id: 2, title: '活动值班', type: '活动值班', description: '社团活动值班', start_time: '2026-04-15 14:00', end_time: '2026-04-15 18:00', required_count: 3, department_id: 1, created_by: 1 }
+      { id: 2, title: '活动值班', type: '活动值班', description: '社团活动值班', start_time: '2026-04-15 14:00', end_time: '2026-04-15 18:00', required_count: 3, department_id: 1, created_by: 1 },
+      { id: 3, title: '图书馆日常值班3', type: '日常值班', description: '负责图书馆的日常管理和秩序维护', start_time: '2026-04-15 08:00', end_time: '2026-04-15 12:00', required_count: 1, department_id: 1, created_by: 1 },
+      { id: 4, title: '图书馆日常值班4', type: '日常值班', description: '负责图书馆的日常管理和秩序维护', start_time: '2026-04-16 08:00', end_time: '2026-04-16 12:00', required_count: 1, department_id: 1, created_by: 1 }
     ]);
     setSchedules([
       { id: 1, task_id: 1, member_id: 1, status: 'assigned' },
-      { id: 2, task_id: 1, member_id: 2, status: 'assigned' }
+      { id: 2, task_id: 1, member_id: 2, status: 'assigned' },
+      { id: 3, task_id: 3, member_id: 3, status: 'assigned' },
+      { id: 4, task_id: 4, member_id: 3, status: 'assigned' }
+    ]);
+    setMembers([
+      { id: 1, name: '测试用户', priority: 'normal', department_id: 1 },
+      { id: 2, name: '测试用户2', priority: 'normal', department_id: 1 },
+      { id: 3, name: '测试用户3', priority: 'core', department_id: 1 }
     ]);
     setLoading(false);
   }, []);
@@ -58,6 +74,37 @@ const Scheduling = () => {
     const task = tasks.find(t => t.id === taskId);
     setCurrentTask(task);
     setShowScheduleModal(true);
+  };
+
+  const handleEditSchedule = (schedule) => {
+    // 实际项目中需要调用API获取可替换的成员
+    setCurrentSchedule(schedule);
+    setEditFormData({ member_id: schedule.member_id });
+    // 模拟可替换的成员
+    setReplacements([
+      { id: 1, name: '测试用户', priority: 'normal', department_id: 1, duty_count: 1 },
+      { id: 2, name: '测试用户2', priority: 'normal', department_id: 1, duty_count: 1 }
+    ]);
+    setShowEditScheduleModal(true);
+  };
+
+  const handleUpdateSchedule = () => {
+    // 实际项目中需要调用API
+    const updatedSchedules = schedules.map(s => 
+      s.id === currentSchedule.id ? { ...s, member_id: parseInt(editFormData.member_id) } : s
+    );
+    setSchedules(updatedSchedules);
+    setShowEditScheduleModal(false);
+  };
+
+  const getMemberName = (memberId) => {
+    const member = members.find(m => m.id === memberId);
+    return member ? member.name : '未知成员';
+  };
+
+  const getMemberPriority = (memberId) => {
+    const member = members.find(m => m.id === memberId);
+    return member ? member.priority : 'normal';
   };
 
   return (
@@ -246,8 +293,11 @@ const Scheduling = () => {
                             >
                               排班
                             </button>
-                            <button className="text-gray-600 hover:text-gray-800">
+                            <button className="text-gray-600 hover:text-gray-800 mr-3">
                               查看
+                            </button>
+                            <button className="text-blue-600 hover:text-blue-800">
+                              编辑
                             </button>
                           </td>
                         </tr>
@@ -428,24 +478,27 @@ const Scheduling = () => {
             <div className="mb-4">
               <h4 className="text-md font-medium text-gray-700 mb-2">已分配成员</h4>
               <div className="space-y-2">
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
-                  <div>
-                    <p className="font-medium">张三</p>
-                    <p className="text-sm text-gray-600">核心成员</p>
-                  </div>
-                  <button className="text-red-600 hover:text-red-800 text-sm">
-                    移除
-                  </button>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
-                  <div>
-                    <p className="font-medium">李四</p>
-                    <p className="text-sm text-gray-600">普通成员</p>
-                  </div>
-                  <button className="text-red-600 hover:text-red-800 text-sm">
-                    移除
-                  </button>
-                </div>
+                {schedules
+                  .filter(s => s.task_id === currentTask.id)
+                  .map(schedule => (
+                    <div key={schedule.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+                      <div>
+                        <p className="font-medium">{getMemberName(schedule.member_id)}</p>
+                        <p className="text-sm text-gray-600">{getMemberPriority(schedule.member_id) === 'core' ? '核心成员' : '普通成员'}</p>
+                      </div>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEditSchedule(schedule)}
+                          className="text-blue-600 hover:text-blue-800 text-sm"
+                        >
+                          调整
+                        </button>
+                        <button className="text-red-600 hover:text-red-800 text-sm">
+                          移除
+                        </button>
+                      </div>
+                    </div>
+                  ))}
               </div>
             </div>
             <div className="flex space-x-2">
@@ -461,6 +514,73 @@ const Scheduling = () => {
                 className="flex-1 px-4 py-2 text-white bg-primary rounded-md hover:bg-primary/90"
               >
                 确认排班
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 编辑排班模态框 */}
+      {showEditScheduleModal && currentSchedule && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-800">调整排班</h3>
+              <button
+                onClick={() => setShowEditScheduleModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="mb-4">
+              <h4 className="text-md font-medium text-gray-700 mb-2">选择成员</h4>
+              <select
+                value={editFormData.member_id}
+                onChange={(e) => setEditFormData({ ...editFormData, member_id: e.target.value })}
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                {members.map(member => (
+                  <option key={member.id} value={member.id}>
+                    {member.name} ({member.priority === 'core' ? '核心成员' : '普通成员'})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-4">
+              <h4 className="text-md font-medium text-gray-700 mb-2">推荐成员</h4>
+              <div className="space-y-2">
+                {replacements.map(member => (
+                  <div 
+                    key={member.id} 
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-md cursor-pointer hover:bg-gray-100"
+                    onClick={() => setEditFormData({ ...editFormData, member_id: member.id })}
+                  >
+                    <div>
+                      <p className="font-medium">{member.name}</p>
+                      <p className="text-sm text-gray-600">{member.priority === 'core' ? '核心成员' : '普通成员'}</p>
+                    </div>
+                    <p className="text-sm text-gray-600">本周值班次数: {member.duty_count}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex space-x-2">
+              <button
+                type="button"
+                onClick={() => setShowEditScheduleModal(false)}
+                className="flex-1 px-4 py-2 text-gray-700 border rounded-md hover:bg-gray-50"
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                onClick={handleUpdateSchedule}
+                className="flex-1 px-4 py-2 text-white bg-primary rounded-md hover:bg-primary/90"
+              >
+                确认调整
               </button>
             </div>
           </div>

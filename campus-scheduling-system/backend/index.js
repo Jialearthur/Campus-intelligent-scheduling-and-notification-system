@@ -36,4 +36,10 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
+// 错误处理
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({ error: 'Internal server error' });
+});
+
 module.exports = app;

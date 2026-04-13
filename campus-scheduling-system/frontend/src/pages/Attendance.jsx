@@ -51,7 +51,7 @@ const Attendance = () => {
     );
     
     // 如果没有找到记录，创建新的考勤记录
-    if (updatedAttendance.every(item => !(item.schedule_id === parseInt(formData.schedule_id) && item.member_id === parseInt(formData.member_id))) {
+    if (updatedAttendance.every(item => !(item.schedule_id === parseInt(formData.schedule_id) && item.member_id === parseInt(formData.member_id)))) {
       const newRecord = {
         id: attendance.length + 1,
         schedule_id: parseInt(formData.schedule_id),

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { get } from '../utils/api';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -48,8 +49,11 @@ const Dashboard = () => {
 
   const handleExportExcel = async () => {
     try {
-      const response = await fetch('http://localhost:5000/statistics/export', {
+      const response = await fetch('/api/statistics/export', {
         method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
       });
       if (response.ok) {
         const blob = await response.blob();
@@ -61,6 +65,9 @@ const Dashboard = () => {
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
+      } else {
+        const errorData = await response.json();
+        console.error('Export failed:', errorData.error);
       }
     } catch (error) {
       console.error('Failed to export Excel:', error);

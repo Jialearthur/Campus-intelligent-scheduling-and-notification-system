@@ -1240,55 +1240,75 @@ input:checked + .toggle-slider:before {
 .qrcode-container {
   width: 200px;
   height: 200px;
-  background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(0, 242, 254, 0.05));
-  border: 1px solid var(--border-color);
+  background: #ffffff;
+  border: 2px solid var(--border-color);
   border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
   margin: 0 auto var(--space-xl);
   position: relative;
   overflow: hidden;
+  padding: 10px;
 }
 
-.qrcode-container::before {
+/* 二维码图案 */
+.qrcode-pattern {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(7, 1fr);
+  gap: 2px;
+  width: 160px;
+  height: 160px;
+  position: relative;
+}
+
+.qrcode-cell {
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+  border-radius: 1px;
+}
+
+.qrcode-cell.dark {
+  background-color: #000000;
+}
+
+/* 二维码定位图案 */
+.qrcode-pattern::before,
+.qrcode-pattern::after,
+.qrcode-pattern .qrcode-cell:first-child {
   content: '';
   position: absolute;
+  width: 40px;
+  height: 40px;
+  background-color: #000000;
+  border: 4px solid #000000;
+  border-radius: 4px;
+}
+
+.qrcode-pattern::before {
   top: 0;
   left: 0;
+  background-color: #ffffff;
+}
+
+.qrcode-pattern::after {
+  top: 0;
   right: 0;
+  background-color: #ffffff;
+}
+
+.qrcode-pattern .qrcode-cell:first-child {
   bottom: 0;
-  background: repeating-linear-gradient(
-    45deg,
-    transparent,
-    transparent 10px,
-    rgba(79, 172, 254, 0.1) 10px,
-    rgba(79, 172, 254, 0.1) 20px
-  );
-  animation: qrPattern 20s linear infinite;
+  left: 0;
+  background-color: #ffffff;
 }
 
-@keyframes qrPattern {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-20px);
-  }
-}
-
-.qrcode-text {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--accent-primary);
-  text-align: center;
-  position: relative;
-  z-index: 1;
-  background: rgba(26, 26, 46, 0.8);
-  padding: var(--space-md) var(--space-lg);
-  border-radius: var(--radius-md);
-  backdrop-filter: blur(8px);
+/* 二维码中心 */
+.qrcode-pattern .qrcode-cell:nth-child(25) {
+  background-color: #000000;
 }
 
 /* 布局辅助类 */

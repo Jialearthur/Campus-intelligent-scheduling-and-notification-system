@@ -176,7 +176,7 @@ const Attendance = () => {
             <h2 className="page-title">签到打卡</h2>
             <button
               onClick={() => setShowCheckInModal(true)}
-              className="btn primary-btn"
+              className="btn-primary"
             >
               扫码签到
             </button>
@@ -219,7 +219,7 @@ const Attendance = () => {
                         <td>{item.member_name}</td>
                         <td>{item.task_title}</td>
                         <td>
-                          <span className={`status-badge ${item.status === 'present' ? 'status-present' : 'status-absent'}`}>
+                          <span className={`badge ${item.status === 'present' ? 'success' : 'danger'}`}>
                             {item.status === 'present' ? '已签到' : '未签到'}
                           </span>
                         </td>
@@ -231,7 +231,7 @@ const Attendance = () => {
                                 setFormData({ schedule_id: item.schedule_id, member_id: item.member_id });
                                 setShowCheckInModal(true);
                               }}
-                              className="action-btn"
+                              className="action-btn primary"
                             >
                               签到
                             </button>
@@ -268,25 +268,24 @@ const Attendance = () => {
               <h3 className="modal-title">扫码签到</h3>
               <button
                 onClick={() => setShowCheckInModal(false)}
-                className="close-btn"
+                className="modal-close"
               >
-                <svg className="close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="modal-close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            <div className="modal-body">
-              <div className="flex justify-center">
+            <form className="modal-form">
+              <div className="flex justify-center mb-6">
                 {/* 模拟二维码 */}
                 <div className="qrcode-container">
                   <p className="qrcode-text">二维码</p>
                 </div>
               </div>
               <div className="form-group">
-                <label htmlFor="schedule_id">排班ID</label>
+                <label className="form-label">排班ID</label>
                 <input
                   type="number"
-                  id="schedule_id"
                   value={formData.schedule_id}
                   onChange={(e) => setFormData({ ...formData, schedule_id: e.target.value })}
                   required
@@ -294,33 +293,32 @@ const Attendance = () => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="member_id">成员ID</label>
+                <label className="form-label">成员ID</label>
                 <input
                   type="number"
-                  id="member_id"
                   value={formData.member_id}
                   onChange={(e) => setFormData({ ...formData, member_id: e.target.value })}
                   required
                   className="form-input"
                 />
               </div>
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                onClick={() => setShowCheckInModal(false)}
-                className="btn secondary-btn"
-              >
-                取消
-              </button>
-              <button
-                type="button"
-                onClick={handleCheckIn}
-                className="btn primary-btn"
-              >
-                确认签到
-              </button>
-            </div>
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  onClick={() => setShowCheckInModal(false)}
+                  className="btn-secondary"
+                >
+                  取消
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCheckIn}
+                  className="btn-primary"
+                >
+                  确认签到
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

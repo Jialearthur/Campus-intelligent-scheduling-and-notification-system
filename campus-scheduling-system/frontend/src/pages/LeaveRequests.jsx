@@ -159,7 +159,7 @@ const LeaveRequests = () => {
             <h2 className="page-title">请假申请</h2>
             <button
               onClick={() => setShowAddModal(true)}
-              className="btn primary-btn"
+              className="btn-primary"
             >
               提交请假申请
             </button>
@@ -207,26 +207,26 @@ const LeaveRequests = () => {
                         <td>{request.start_time}</td>
                         <td>{request.end_time}</td>
                         <td>
-                          <span className={`status-badge ${request.status === 'pending' ? 'status-pending' : request.status === 'approved' ? 'status-approved' : 'status-rejected'}`}>
+                          <span className={`badge ${request.status === 'pending' ? 'warning' : request.status === 'approved' ? 'success' : 'danger'}`}>
                             {request.status === 'pending' ? '待审批' : request.status === 'approved' ? '已批准' : '已拒绝'}
                           </span>
                         </td>
                         <td>
                           {request.status === 'pending' && (
-                            <>
+                            <div className="action-buttons">
                               <button
                                 onClick={() => handleApprove(request.id, 'approved')}
-                                className="action-btn approve-btn"
+                                className="action-btn success"
                               >
                                 批准
                               </button>
                               <button
                                 onClick={() => handleApprove(request.id, 'rejected')}
-                                className="action-btn reject-btn"
+                                className="action-btn danger"
                               >
                                 拒绝
                               </button>
-                            </>
+                            </div>
                           )}
                         </td>
                       </tr>
@@ -260,19 +260,18 @@ const LeaveRequests = () => {
               <h3 className="modal-title">提交请假申请</h3>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="close-btn"
+                className="modal-close"
               >
-                <svg className="close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="modal-close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            <div className="modal-body">
+            <form className="modal-form">
               <div className="form-group">
-                <label htmlFor="schedule_id">排班ID</label>
+                <label className="form-label">排班ID</label>
                 <input
                   type="number"
-                  id="schedule_id"
                   value={formData.schedule_id}
                   onChange={(e) => setFormData({ ...formData, schedule_id: e.target.value })}
                   required
@@ -280,10 +279,9 @@ const LeaveRequests = () => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="member_id">成员ID</label>
+                <label className="form-label">成员ID</label>
                 <input
                   type="number"
-                  id="member_id"
                   value={formData.member_id}
                   onChange={(e) => setFormData({ ...formData, member_id: e.target.value })}
                   required
@@ -291,9 +289,8 @@ const LeaveRequests = () => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="reason">请假原因</label>
+                <label className="form-label">请假原因</label>
                 <textarea
-                  id="reason"
                   value={formData.reason}
                   onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
                   required
@@ -302,10 +299,9 @@ const LeaveRequests = () => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="start_time">开始时间</label>
+                <label className="form-label">开始时间</label>
                 <input
                   type="datetime-local"
-                  id="start_time"
                   value={formData.start_time}
                   onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
                   required
@@ -313,33 +309,32 @@ const LeaveRequests = () => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="end_time">结束时间</label>
+                <label className="form-label">结束时间</label>
                 <input
                   type="datetime-local"
-                  id="end_time"
                   value={formData.end_time}
                   onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
                   required
                   className="form-input"
                 />
               </div>
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                onClick={() => setShowAddModal(false)}
-                className="btn secondary-btn"
-              >
-                取消
-              </button>
-              <button
-                type="button"
-                onClick={handleAddLeaveRequest}
-                className="btn primary-btn"
-              >
-                提交
-              </button>
-            </div>
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="btn-secondary"
+                >
+                  取消
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAddLeaveRequest}
+                  className="btn-primary"
+                >
+                  提交
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

@@ -163,14 +163,14 @@ const Notifications = () => {
             <h2 className="page-title">通知管理</h2>
             <button
               onClick={() => setShowSendModal(true)}
-              className="btn primary-btn"
+              className="btn-primary"
             >
               发送通知
             </button>
           </div>
 
           {/* 通知设置 */}
-          <div className="card mb-6">
+          <div className="card">
             <div className="card-header">
               <h3 className="card-title">通知设置</h3>
             </div>
@@ -257,12 +257,12 @@ const Notifications = () => {
                       <td>{notification.member_name || '未知成员'}</td>
                       <td>{notification.content}</td>
                       <td>
-                        <span className={`status-badge ${notification.channel === 'email' ? 'status-email' : notification.channel === 'wechat' ? 'status-wechat' : 'status-qywechat'}`}>
+                        <span className={`badge ${notification.channel === 'email' ? 'primary' : notification.channel === 'wechat' ? 'success' : 'info'}`}>
                           {notification.channel === 'email' ? '校园邮箱' : notification.channel === 'wechat' ? '微信' : '企业微信'}
                         </span>
                       </td>
                       <td>
-                        <span className={`status-badge ${notification.status === 'sent' ? 'status-sent' : notification.status === 'pending' ? 'status-pending' : 'status-failed'}`}>
+                        <span className={`badge ${notification.status === 'sent' ? 'success' : notification.status === 'pending' ? 'warning' : 'danger'}`}>
                           {notification.status === 'sent' ? '已发送' : notification.status === 'pending' ? '待发送' : '发送失败'}
                         </span>
                       </td>
@@ -272,7 +272,7 @@ const Notifications = () => {
                         {notification.status === 'failed' && (
                           <button
                             onClick={() => handleResendNotification(notification.id)}
-                            className="action-btn"
+                            className="action-btn primary"
                           >
                             重新发送
                           </button>
@@ -316,16 +316,15 @@ const Notifications = () => {
                 onClick={() => setShowSendModal(false)}
                 className="modal-close"
               >
-                <svg className="close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="modal-close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            <div className="modal-body">
+            <form className="modal-form">
               <div className="form-group">
-                <label htmlFor="member_id">成员</label>
+                <label className="form-label">成员</label>
                 <select
-                  id="member_id"
                   value={formData.member_id}
                   onChange={(e) => setFormData({ ...formData, member_id: e.target.value })}
                   className="form-input"
@@ -337,7 +336,7 @@ const Notifications = () => {
                 </select>
               </div>
               <div className="form-group">
-                <label>通知渠道</label>
+                <label className="form-label">通知渠道</label>
                 <div className="checkbox-group">
                   <div className="checkbox-item">
                     <input
@@ -351,7 +350,6 @@ const Notifications = () => {
                           setFormData({ ...formData, channels: formData.channels.filter(c => c !== 'email') });
                         }
                       }}
-                      className="form-checkbox"
                     />
                     <label htmlFor="channel-email">校园邮箱</label>
                   </div>
@@ -367,7 +365,6 @@ const Notifications = () => {
                           setFormData({ ...formData, channels: formData.channels.filter(c => c !== 'wechat') });
                         }
                       }}
-                      className="form-checkbox"
                     />
                     <label htmlFor="channel-wechat">微信</label>
                   </div>
@@ -383,16 +380,14 @@ const Notifications = () => {
                           setFormData({ ...formData, channels: formData.channels.filter(c => c !== 'qywechat') });
                         }
                       }}
-                      className="form-checkbox"
                     />
                     <label htmlFor="channel-qywechat">企业微信</label>
                   </div>
                 </div>
               </div>
               <div className="form-group">
-                <label htmlFor="content">通知内容</label>
+                <label className="form-label">通知内容</label>
                 <textarea
-                  id="content"
                   value={formData.content}
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                   required
@@ -400,23 +395,23 @@ const Notifications = () => {
                   rows={4}
                 />
               </div>
-            </div>
-            <div className="modal-actions">
-              <button
-                type="button"
-                onClick={() => setShowSendModal(false)}
-                className="btn btn-secondary"
-              >
-                取消
-              </button>
-              <button
-                type="button"
-                onClick={handleSendNotification}
-                className="btn btn-primary"
-              >
-                发送
-              </button>
-            </div>
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  onClick={() => setShowSendModal(false)}
+                  className="btn-secondary"
+                >
+                  取消
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSendNotification}
+                  className="btn-primary"
+                >
+                  发送
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

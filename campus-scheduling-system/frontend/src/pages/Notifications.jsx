@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { get, post } from '../utils/api';
 
 const Notifications = () => {
   const { user } = useAuth();
@@ -24,17 +25,8 @@ const Notifications = () => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch('http://localhost:5000/notifications');
-      if (response.ok) {
-        const data = await response.json();
-        setNotifications(data);
-      } else {
-        setNotifications([
-          { id: 1, schedule_id: 1, member_id: 1, member_name: '张三', channel: 'email', content: '您被安排在2026-04-14 08:00-12:00值班', status: 'sent', sent_at: '2026-04-13 10:00:00', created_at: '2026-04-13 09:59:00' },
-          { id: 2, schedule_id: 1, member_id: 2, member_name: '李四', channel: 'wechat', content: '您被安排在2026-04-14 08:00-12:00值班', status: 'failed', sent_at: null, created_at: '2026-04-13 09:59:00' },
-          { id: 3, schedule_id: 2, member_id: 1, member_name: '张三', channel: 'email', content: '您被安排在2026-04-15 14:00-18:00值班', status: 'pending', sent_at: null, created_at: '2026-04-13 11:00:00' }
-        ]);
-      }
+      const data = await get('/notifications');
+      setNotifications(data);
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
       setNotifications([
@@ -48,36 +40,26 @@ const Notifications = () => {
 
   const handleResendNotification = async (notificationId) => {
     try {
-      const response = await fetch(`http://localhost:5000/notifications/${notificationId}/resend`, {
-        method: 'POST'
-      });
-      if (response.ok) {
-        fetchNotifications();
-      }
+      await post(`/notifications/${notificationId}/resend`);
+      fetchNotifications();
     } catch (error) {
       console.error('Failed to resend notification:', error);
     }
   };
 
-  const handleSendNotification = () => {
-    // 实际项目中需要调用API
-    const newNotification = {
-      id: notifications.length + 1,
-      schedule_id: 1,
-      member_id: formData.member_id,
-      channel: formData.channels[0],
-      content: formData.content,
-      status: 'pending',
-      sent_at: null,
-      created_at: new Date().toISOString()
-    };
-    setNotifications([...notifications, newNotification]);
-    setShowSendModal(false);
-    setFormData({
-      member_id: '',
-      channels: ['email'],
-      content: ''
-    });
+  const handleSendNotification = async () => {
+    try {
+      await post('/notifications', formData);
+      fetchNotifications();
+      setShowSendModal(false);
+      setFormData({
+        member_id: '',
+        channels: ['email'],
+        content: ''
+      });
+    } catch (error) {
+      console.error('Failed to send notification:', error);
+    }
   };
 
   const toggleNotificationSetting = (channel) => {

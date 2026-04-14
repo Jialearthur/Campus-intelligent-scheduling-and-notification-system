@@ -4,6 +4,7 @@ const ExcelJS = require('exceljs');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -20,7 +21,7 @@ const applyHeaderStyle = (worksheet) => {
 };
 
 // 获取部门统计数据
-router.get('/departments', (req, res) => {
+router.get('/departments', authMiddleware, (req, res) => {
   db.all(
     `
     SELECT d.id, d.name, COUNT(t.id) as task_count, COUNT(s.id) as schedule_count
@@ -39,7 +40,7 @@ router.get('/departments', (req, res) => {
 });
 
 // 获取成员统计数据
-router.get('/members', (req, res) => {
+router.get('/members', authMiddleware, (req, res) => {
   db.all(
     `
     SELECT m.id, m.name, m.department_id, COUNT(s.id) as schedule_count, COUNT(a.id) as attendance_count
@@ -58,7 +59,7 @@ router.get('/members', (req, res) => {
 });
 
 // 获取成员志愿时长统计
-router.get('/volunteer-hours', (req, res) => {
+router.get('/volunteer-hours', authMiddleware, (req, res) => {
   const { period, start_date, end_date } = req.query;
   let query = `
     SELECT m.id, m.name, m.department_id, COALESCE(SUM(t.volunteer_hours), 0) as total_hours
@@ -86,7 +87,7 @@ router.get('/volunteer-hours', (req, res) => {
 });
 
 // 导出志愿时长统计Excel表格
-router.get('/export/volunteer-hours', async (req, res) => {
+router.get('/export/volunteer-hours', authMiddleware, async (req, res) => {
   const { start_date, end_date } = req.query;
   
   try {
@@ -153,7 +154,7 @@ router.get('/export/volunteer-hours', async (req, res) => {
 });
 
 // 导出Excel表格
-router.get('/export', async (req, res) => {
+router.get('/export', authMiddleware, async (req, res) => {
   try {
     const workbook = new ExcelJS.Workbook();
     const departmentsSheet = workbook.addWorksheet('部门统计');

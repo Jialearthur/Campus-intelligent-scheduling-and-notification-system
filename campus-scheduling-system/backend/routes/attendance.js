@@ -1,10 +1,11 @@
 const express = require('express');
 const db = require('../database');
+const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
 // 获取考勤列表
-router.get('/', (req, res) => {
+router.get('/', authMiddleware, (req, res) => {
   db.all(
     `
     SELECT a.*, m.name as member_name, s.task_id, t.title as task_title
@@ -24,7 +25,7 @@ router.get('/', (req, res) => {
 });
 
 // 获取成员的考勤记录
-router.get('/member/:member_id', (req, res) => {
+router.get('/member/:member_id', authMiddleware, (req, res) => {
   const { member_id } = req.params;
   db.all(
     `
@@ -46,7 +47,7 @@ router.get('/member/:member_id', (req, res) => {
 });
 
 // 获取任务的考勤记录
-router.get('/task/:task_id', (req, res) => {
+router.get('/task/:task_id', authMiddleware, (req, res) => {
   const { task_id } = req.params;
   db.all(
     `
@@ -68,7 +69,7 @@ router.get('/task/:task_id', (req, res) => {
 });
 
 // 签到
-router.post('/check-in', (req, res) => {
+router.post('/check-in', authMiddleware, (req, res) => {
   const { schedule_id, member_id } = req.body;
   const check_in_time = new Date().toISOString();
   
@@ -133,7 +134,7 @@ router.post('/check-in', (req, res) => {
 });
 
 // 批量签到（扫码签到）
-router.post('/batch-check-in', (req, res) => {
+router.post('/batch-check-in', authMiddleware, (req, res) => {
   const { schedule_id, member_ids } = req.body;
   const check_in_time = new Date().toISOString();
   const results = [];
@@ -179,7 +180,7 @@ router.post('/batch-check-in', (req, res) => {
 });
 
 // 更新考勤状态
-router.put('/:id', (req, res) => {
+router.put('/:id', authMiddleware, (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
   
@@ -213,7 +214,7 @@ router.put('/:id', (req, res) => {
 });
 
 // 删除考勤记录
-router.delete('/:id', (req, res) => {
+router.delete('/:id', authMiddleware, (req, res) => {
   const { id } = req.params;
   
   db.run(

@@ -1,10 +1,11 @@
 const express = require('express');
 const db = require('../database');
+const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
 // 获取任务列表
-router.get('/', (req, res) => {
+router.get('/', authMiddleware, (req, res) => {
   db.all('SELECT * FROM tasks', (err, tasks) => {
     if (err) {
       return res.status(500).json({ error: 'Database error' });
@@ -14,7 +15,7 @@ router.get('/', (req, res) => {
 });
 
 // 创建值班任务
-router.post('/', (req, res) => {
+router.post('/', authMiddleware, (req, res) => {
   const { department_id, type, title, description, start_time, end_time, required_count, created_by } = req.body;
 
   db.run(
@@ -40,7 +41,7 @@ router.post('/', (req, res) => {
 });
 
 // 更新任务信息
-router.put('/:id', (req, res) => {
+router.put('/:id', authMiddleware, (req, res) => {
   const { id } = req.params;
   const { department_id, type, title, description, start_time, end_time, required_count } = req.body;
 
@@ -69,7 +70,7 @@ router.put('/:id', (req, res) => {
 });
 
 // 删除任务
-router.delete('/:id', (req, res) => {
+router.delete('/:id', authMiddleware, (req, res) => {
   const { id } = req.params;
 
   // 开始事务

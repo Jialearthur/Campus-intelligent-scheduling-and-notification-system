@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('../database');
 const nodemailer = require('nodemailer');
+const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -54,7 +55,7 @@ const sendNotification = async (notification) => {
 };
 
 // 获取通知列表
-router.get('/', (req, res) => {
+router.get('/', authMiddleware, (req, res) => {
   const { status } = req.query;
   let query = 'SELECT * FROM notifications';
   const params = [];
@@ -75,7 +76,7 @@ router.get('/', (req, res) => {
 });
 
 // 发送通知
-router.post('/', async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
   const { schedule_id, member_id, channels, content } = req.body;
 
   try {
@@ -118,7 +119,7 @@ router.post('/', async (req, res) => {
 });
 
 // 重新发送通知
-router.post('/:id/resend', (req, res) => {
+router.post('/:id/resend', authMiddleware, (req, res) => {
   const { id } = req.params;
   
   db.get('SELECT * FROM notifications WHERE id = ?', [id], (err, notification) => {

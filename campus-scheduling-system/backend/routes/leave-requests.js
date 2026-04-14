@@ -1,10 +1,11 @@
 const express = require('express');
 const db = require('../database');
+const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
 // 获取请假申请列表
-router.get('/', (req, res) => {
+router.get('/', authMiddleware, (req, res) => {
   db.all(
     `
     SELECT lr.*, m.name as member_name, s.task_id, t.title as task_title
@@ -24,7 +25,7 @@ router.get('/', (req, res) => {
 });
 
 // 获取成员的请假申请
-router.get('/member/:member_id', (req, res) => {
+router.get('/member/:member_id', authMiddleware, (req, res) => {
   const { member_id } = req.params;
   db.all(
     `
@@ -46,7 +47,7 @@ router.get('/member/:member_id', (req, res) => {
 });
 
 // 创建请假申请
-router.post('/', (req, res) => {
+router.post('/', authMiddleware, (req, res) => {
   const { schedule_id, member_id, reason, start_time, end_time } = req.body;
   
   db.run(
@@ -79,7 +80,7 @@ router.post('/', (req, res) => {
 });
 
 // 审批请假申请
-router.put('/:id/approve', (req, res) => {
+router.put('/:id/approve', authMiddleware, (req, res) => {
   const { id } = req.params;
   const { approved_by, status } = req.body;
   
@@ -147,7 +148,7 @@ router.put('/:id/approve', (req, res) => {
 });
 
 // 删除请假申请
-router.delete('/:id', (req, res) => {
+router.delete('/:id', authMiddleware, (req, res) => {
   const { id } = req.params;
   
   db.run(

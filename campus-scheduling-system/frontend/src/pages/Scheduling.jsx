@@ -332,7 +332,7 @@ const Scheduling = () => {
                 <input
                   type="number"
                   value={formData.required_count}
-                  onChange={(e) => setFormData({ ...formData, required_count: parseInt(e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, required_count: parseInt(e.target.value) })}
                   min="1"
                   required
                   className="form-input"
@@ -342,7 +342,7 @@ const Scheduling = () => {
                 <label className="form-label">部门</label>
                 <select
                   value={formData.department_id}
-                  onChange={(e) => setFormData({ ...formData, department_id: parseInt(e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, department_id: parseInt(e.target.value) })}
                   className="form-input"
                 >
                   <option value={1}>部门 1</option>

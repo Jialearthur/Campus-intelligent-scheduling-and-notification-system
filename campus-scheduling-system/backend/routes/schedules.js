@@ -1,10 +1,11 @@
 const express = require('express');
 const db = require('../database');
+const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
 // 获取排班列表
-router.get('/', (req, res) => {
+router.get('/', authMiddleware, (req, res) => {
   db.all('SELECT * FROM schedules', (err, schedules) => {
     if (err) {
       return res.status(500).json({ error: 'Database error' });
@@ -68,7 +69,7 @@ const getMemberDutyCount = (member_id, start_date, end_date) => {
 };
 
 // 生成排班
-router.post('/', async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
   const { task_id } = req.body;
 
   try {
@@ -185,7 +186,7 @@ router.post('/', async (req, res) => {
 });
 
 // 更新排班
-router.put('/:id', async (req, res) => {
+router.put('/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
   const { member_id, status } = req.body;
 
@@ -245,7 +246,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // 获取可替换的空闲成员
-router.get('/:id/replacements', async (req, res) => {
+router.get('/:id/replacements', authMiddleware, async (req, res) => {
   const { id } = req.params;
 
   try {

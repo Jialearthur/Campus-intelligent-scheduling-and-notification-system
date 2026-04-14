@@ -875,6 +875,192 @@ select.form-input {
   color: var(--error-color);
 }
 
+/* 认证页面样式 */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(79, 172, 254, 0.1) 0%, transparent 70%);
+  animation: pulse 8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+}
+
+.auth-card {
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(15, 52, 96, 0.9) 100%);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  padding: var(--space-2xl);
+  width: 100%;
+  max-width: 450px;
+  position: relative;
+  z-index: 1;
+  backdrop-filter: blur(10px);
+  animation: cardSlideIn 0.6s ease-out;
+}
+
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: var(--space-2xl);
+  padding-bottom: var(--space-xl);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.auth-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: var(--space-md);
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+}
+
+.auth-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: var(--space-sm) 0;
+}
+
+.form-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.form-checkbox {
+  width: auto;
+  accent-color: var(--accent-primary);
+  transform: scale(1.1);
+}
+
+.form-option-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.form-link {
+  font-size: 0.9rem;
+}
+
+.link {
+  color: var(--accent-primary);
+  text-decoration: none;
+  transition: var(--transition-fast);
+  font-weight: 500;
+}
+
+.link:hover {
+  text-decoration: underline;
+  color: var(--accent-secondary);
+}
+
+.btn-full {
+  width: 100%;
+  justify-content: center;
+  padding: var(--space-md) var(--space-lg);
+  font-size: 1.1rem;
+  margin-top: var(--space-md);
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: var(--space-2xl);
+  padding-top: var(--space-xl);
+  border-top: 1px solid var(--border-color);
+}
+
+.auth-footer-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.alert {
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-lg);
+  font-size: 0.9rem;
+  font-weight: 500;
+  animation: alertSlideIn 0.3s ease-out;
+}
+
+@keyframes alertSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.alert.error {
+  background-color: rgba(255, 71, 87, 0.15);
+  color: var(--error-color);
+  border: 1px solid rgba(255, 71, 87, 0.3);
+}
+
+.alert.success {
+  background-color: rgba(0, 242, 96, 0.15);
+  color: var(--success-color);
+  border: 1px solid rgba(0, 242, 96, 0.3);
+}
+
 /* 响应式设计 */
 @media (max-width: 1024px) {
   .main-layout {
@@ -985,5 +1171,23 @@ select.form-input {
   .modal {
     width: 95%;
     max-width: none;
+  }
+  
+  .auth-container {
+    padding: var(--space-md);
+  }
+  
+  .auth-card {
+    padding: var(--space-xl);
+  }
+  
+  .auth-title {
+    font-size: 1.5rem;
+  }
+  
+  .form-options {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
   }
 }

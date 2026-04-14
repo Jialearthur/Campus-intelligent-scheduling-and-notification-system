@@ -29,11 +29,12 @@
   --radius-xl: 16px;
   
   /* 间距 */
-  --space-xs: 4px;
-  --space-sm: 8px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --space-xl: 32px;
+  --space-xs: 6px;
+  --space-sm: 12px;
+  --space-md: 20px;
+  --space-lg: 32px;
+  --space-xl: 48px;
+  --space-2xl: 64px;
   
   /* 过渡 */
   --transition-fast: 0.2s ease;
@@ -197,7 +198,7 @@ body {
 /* 主内容区域 */
 .main-content {
   flex: 1;
-  padding: var(--space-lg);
+  padding: var(--space-xl);
   overflow-y: auto;
   min-height: calc(100vh - 72px);
 }
@@ -207,8 +208,8 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-lg);
-  padding-bottom: var(--space-md);
+  margin-bottom: var(--space-xl);
+  padding-bottom: var(--space-lg);
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -226,19 +227,20 @@ body {
   background: linear-gradient(135deg, var(--bg-card) 0%, rgba(15, 52, 96, 0.8) 100%);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-xl);
   overflow: hidden;
   border: 1px solid var(--border-color);
   transition: var(--transition-normal);
+  max-width: 100%;
 }
 
 .card:hover {
   box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
+  transform: translateY(-4px);
 }
 
 .card-header {
-  padding: var(--space-md) var(--space-lg);
+  padding: var(--space-lg) var(--space-xl);
   border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
@@ -247,11 +249,11 @@ body {
 }
 
 .card-body {
-  padding: var(--space-lg);
+  padding: var(--space-xl);
 }
 
 .card-footer {
-  padding: var(--space-md) var(--space-lg);
+  padding: var(--space-lg) var(--space-xl);
   border-top: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
@@ -365,9 +367,11 @@ input::placeholder, textarea::placeholder {
 
 .data-table th,
 .data-table td {
-  padding: var(--space-md);
+  padding: var(--space-lg);
   text-align: left;
   border-bottom: 1px solid var(--border-color);
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
 .data-table th {
@@ -377,10 +381,21 @@ input::placeholder, textarea::placeholder {
   position: sticky;
   top: 0;
   z-index: 10;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+}
+
+.data-table tr {
+  transition: var(--transition-fast);
 }
 
 .data-table tr:hover {
   background-color: rgba(79, 172, 254, 0.05);
+  transform: translateY(-1px);
+}
+
+.data-table tr:not(:last-child) {
+  margin-bottom: var(--space-xs);
 }
 
 /* 日期筛选 */

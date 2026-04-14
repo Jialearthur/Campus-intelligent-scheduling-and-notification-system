@@ -582,7 +582,24 @@ input::placeholder, textarea::placeholder {
   overflow-y: auto;
   animation: modalFadeIn 0.3s ease;
   position: relative;
-  overflow: hidden;
+}
+
+.modal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-lg);
+}
+
+.modal::-webkit-scrollbar-thumb {
+  background: rgba(79, 172, 254, 0.5);
+  border-radius: var(--radius-lg);
+}
+
+.modal::-webkit-scrollbar-thumb:hover {
+  background: rgba(79, 172, 254, 0.8);
 }
 
 .modal::before {
